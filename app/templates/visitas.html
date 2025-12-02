@@ -429,9 +429,14 @@
     <main class="container mt-4">
         <div class="flex justify-between items-center mb-3" style="flex-wrap: wrap; gap: var(--spacing-md);">
             <h1 style="font-size: clamp(1.5rem, 6vw, 2rem);">Visitas a Fornecedores</h1>
-            <button class="btn btn-primary" onclick="abrirModalNovaVisita()">
-                <i class="fas fa-plus"></i> Nova Visita
-            </button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary" onclick="window.location.href='/fornecedores.html'" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-building"></i> Ver Fornecedores
+                </button>
+                <button class="btn btn-primary" onclick="abrirModalNovaVisita()">
+                    <i class="fas fa-plus"></i> Nova Visita
+                </button>
+            </div>
         </div>
 
         <div class="stats-container" id="statsContainer">
