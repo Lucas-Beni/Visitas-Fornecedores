@@ -54,6 +54,14 @@ Sistema ERP completo desenvolvido em Flask para gestão inteligente de compra, l
 - Sistema de atribuição de fornecedores a funcionários
 - Preços por fornecedor + tipo de lote + estrelas
 
+### 2.1 Visitas a Fornecedores (NOVO)
+- Cadastro de visitas a potenciais fornecedores em campo
+- Captura automática de GPS e geocoding
+- Cards com status: Pendente, Aprovada, Recusada
+- Conversão de visita para fornecedor (pre-preenche formulário)
+- Estatísticas de visitas por status
+- Acesso: /visitas.html
+
 ### 3. Solicitações com IA
 - Upload de fotos de placas eletrônicas
 - Classificação automática via Gemini AI

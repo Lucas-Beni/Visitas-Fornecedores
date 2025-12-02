@@ -1956,3 +1956,56 @@ class ScannerAnalysis(db.Model):  # type: ignore
             'precious_metals': self.precious_metals,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+
+class Visita(db.Model):  # type: ignore
+    """Visitas a potenciais fornecedores"""
+    __tablename__ = 'visitas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(120), nullable=True)
+    telefone = db.Column(db.String(20), nullable=True)
+    
+    localizacao_lat = db.Column(db.Float, nullable=True)
+    localizacao_lng = db.Column(db.Float, nullable=True)
+    endereco_completo = db.Column(db.String(500), nullable=True)
+    cidade = db.Column(db.String(100), nullable=True)
+    estado = db.Column(db.String(2), nullable=True)
+    
+    observacoes = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='pendente', nullable=False)
+    
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    fornecedor_id = db.Column(db.Integer, db.ForeignKey('fornecedores.id'), nullable=True)
+    
+    data_visita = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    data_decisao = db.Column(db.DateTime, nullable=True)
+    motivo_recusa = db.Column(db.Text, nullable=True)
+    
+    usuario = db.relationship('Usuario', backref='visitas_realizadas', lazy=True)
+    fornecedor = db.relationship('Fornecedor', backref='visita_origem', lazy=True)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome': self.nome,
+            'email': self.email,
+            'telefone': self.telefone,
+            'localizacao_lat': self.localizacao_lat,
+            'localizacao_lng': self.localizacao_lng,
+            'endereco_completo': self.endereco_completo,
+            'cidade': self.cidade,
+            'estado': self.estado,
+            'observacoes': self.observacoes,
+            'status': self.status,
+            'usuario_id': self.usuario_id,
+            'usuario_nome': self.usuario.nome if self.usuario else None,
+            'fornecedor_id': self.fornecedor_id,
+            'data_visita': self.data_visita.isoformat() if self.data_visita else None,
+            'data_decisao': self.data_decisao.isoformat() if self.data_decisao else None,
+            'motivo_recusa': self.motivo_recusa
+        }

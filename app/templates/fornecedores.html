@@ -427,6 +427,31 @@
             if (typeof renderizarMenusMobile === 'function') {
                 renderizarMenusMobile();
             }
+
+            // Verificar se veio de uma visita aprovada
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('fromVisita') === 'true') {
+                abrirModalNovoFornecedor();
+                
+                // Preencher campos com dados da visita
+                setTimeout(() => {
+                    if (urlParams.get('nome')) document.getElementById('nome').value = urlParams.get('nome');
+                    if (urlParams.get('email')) document.getElementById('email').value = urlParams.get('email');
+                    if (urlParams.get('telefone')) document.getElementById('telefone').value = urlParams.get('telefone');
+                    if (urlParams.get('cidade')) document.getElementById('cidade').value = urlParams.get('cidade');
+                    if (urlParams.get('estado')) document.getElementById('estado').value = urlParams.get('estado');
+                    if (urlParams.get('observacoes')) document.getElementById('observacoes').value = urlParams.get('observacoes');
+                    
+                    // Guardar ID da visita para atualizar status depois
+                    const visitaId = urlParams.get('visita_id');
+                    if (visitaId) {
+                        document.getElementById('formFornecedor').dataset.visitaId = visitaId;
+                    }
+                    
+                    // Mostrar alerta informativo
+                    showAlert('Preencha os dados do fornecedor. Os campos em comum com a visita ja foram preenchidos.', 'info');
+                }, 100);
+            }
         }
 
         async function carregarCompradores() {
@@ -821,6 +846,28 @@
                 if (!response || !response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.erro || 'Erro ao salvar fornecedor');
+                }
+
+                const fornecedorCriado = await response.json();
+                
+                // Se veio de uma visita, atualizar o status da visita
+                const visitaId = document.getElementById('formFornecedor').dataset.visitaId;
+                if (visitaId && !id && fornecedorCriado && fornecedorCriado.id) {
+                    try {
+                        const aprovarResponse = await fetchAPI(`/api/visitas/${visitaId}/aprovar`, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                fornecedor_id: fornecedorCriado.id
+                            })
+                        });
+                        if (aprovarResponse && aprovarResponse.ok) {
+                            console.log('Visita aprovada e vinculada ao fornecedor');
+                        }
+                    } catch (e) {
+                        console.error('Erro ao atualizar visita:', e);
+                    }
+                    // Limpar a URL para remover parâmetros da visita
+                    window.history.replaceState({}, document.title, '/fornecedores.html');
                 }
 
                 showAlert(id ? 'Fornecedor atualizado com sucesso!' : 'Fornecedor cadastrado com sucesso!', 'success');
