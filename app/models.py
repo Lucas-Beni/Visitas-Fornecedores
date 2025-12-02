@@ -1971,7 +1971,7 @@ class Visita(db.Model):  # type: ignore
     localizacao_lng = db.Column(db.Float, nullable=True)
     endereco_completo = db.Column(db.String(500), nullable=True)
     cidade = db.Column(db.String(100), nullable=True)
-    estado = db.Column(db.String(2), nullable=True)
+    estado = db.Column(db.String(100), nullable=True)
     
     observacoes = db.Column(db.Text, nullable=True)
     contato_empresa = db.Column(db.String(200), nullable=True)
