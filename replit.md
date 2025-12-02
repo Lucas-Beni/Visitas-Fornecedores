@@ -1,64 +1,172 @@
-# MRX System - Gestão de Compras de Sucata Eletrônica
+# MRX Systems - ERP de Gestão de Metais e Eletrônicos
 
-### Overview
-The MRX System is a comprehensive platform designed to manage electronic scrap purchases. Its primary purpose is to streamline procurement, enhance pricing control, and improve supplier management within the electronic scrap industry. Key capabilities include a star-based pricing system, a price authorization workflow for negotiations, and geolocation tracking for suppliers. The system also integrates an AI-powered PCB scanner for material classification, an AI chatbot for system interaction, and a financial achievement planning tool for administrators.
+## Visão Geral
+Sistema ERP completo desenvolvido em Flask para gestão inteligente de compra, logística, estoque e separação de materiais metálicos e placas eletrônicas.
 
-### User Preferences
-I want iterative development.
-I prefer detailed explanations.
-Ask before making major changes.
-Do not make changes to the folder `Z`.
-Do not make changes to the file `Y`.
+## Informações de Acesso
 
-### System Architecture
+### Usuário Administrador Padrão
+- **Email**: admin@sistema.com
+- **Senha padrão**: admin123 (alterar após primeiro acesso)
 
-#### UI/UX Decisions
-The frontend uses Vanilla JavaScript and Tailwind CSS, providing a modern, responsive interface with PWA capabilities via Service Workers. The design focuses on clarity and efficiency for managing materials, prices, and authorizations.
+⚠️ **Importante**: Configure as variáveis de ambiente ADMIN_EMAIL e ADMIN_PASSWORD para personalizar as credenciais do administrador.
 
-#### Technical Implementations
-The system is built on a Flask backend (Python 3.12) with SQLAlchemy for ORM and PostgreSQL (Neon-backed) as the database. Real-time notifications are managed via Socket.IO, and JWT handles authentication.
+## Arquitetura do Projeto
 
-#### Feature Specifications
--   **Material Management**: Supports over 50 types of electronic scrap with detailed classification.
--   **Star-Based Pricing**: Utilizes three fixed price tables (1★, 2★, 3★) linked to supplier quality, with specific prices per material.
--   **Price Authorization Workflow**: Triggers an authorization request for negotiated prices exceeding standard star-level rates, including status tracking and percentage difference calculation.
--   **Supplier Geolocalization**: Stores supplier location data, with new suppliers defaulting to 1★.
--   **Supplier Tax ID Flexibility**: Supports both CPF (individual) and CNPJ (business) tax IDs with validation.
--   **Freight Modality**: Includes FOB or CIF freight options in purchase requests.
--   **Excel Import/Export**: Functionality for bulk import and export of materials and price tables.
--   **Purchase Wizard**: A multi-step wizard for new purchases, integrating supplier selection, collection/delivery details, item scanning, value input, and authorization requests.
--   **WMS (Warehouse Management System)**: Manages inventory lots with features like lot details viewing, direct search, null-safe user validations, and real-time status tracking.
--   **PCB Scanner with AI Vision**: Implements intelligent electronic board scanning using AI for classification (LOW/MEDIUM/HIGH grade), price suggestions, component detection, and customizable AI prompts.
--   **AI Chatbot with System Actions**: An enhanced AI assistant (floating widget) capable of executing system actions via natural language, such as creating suppliers, sending notifications, listing data, and generating summaries, with comprehensive database context provided by Perplexity AI.
--   **Achievement Planning**: An admin-only feature for tracking financial goals across various categories, with CRUD operations, progress charts, and AI-powered recommendations.
--   **Supplier Price Table Management**: Allows suppliers to submit and correct price tables, with an admin review interface for side-by-side comparison, inline editing, and bulk approval/rejection.
--   **HR Module (RH)**: A comprehensive human resources module accessible at `/rh-admin.html` with the following features:
-    -   **User Management**: Full CRUD for employees with photo upload, profile assignment, contact information (phone, CPF), and status management.
-    -   **Commission System**: Percentage-based commission tracking tied to purchase solicitations (solicitações), with assignment of commission percentages per user.
-    -   **Commission Reports**: Detailed reporting with filtering by date range and user, showing total value of solicitations and calculated commissions.
-    -   **Export Functionality**: CSV and Excel export for commission reports using pandas/openpyxl.
-    -   **Audit Logging**: Complete audit trail for all HR operations using the existing AuditoriaLog system, tracking before/after changes.
-    -   **User Photo Uploads**: Photos stored in `uploads/usuarios/` directory with validation for image types and size limits.
+### Stack Tecnológico
+- **Backend**: Python 3.11 + Flask 3.0
+- **Database**: PostgreSQL (via Replit)
+- **ORM**: SQLAlchemy + Flask-Migrate
+- **Autenticação**: JWT (Flask-JWT-Extended)
+- **WebSockets**: Flask-SocketIO + eventlet
+- **IA**: Google Gemini AI (classificação de placas)
+- **Processamento de Imagens**: OpenCV + Pillow
+- **Planilhas**: openpyxl + pandas
 
-#### System Design Choices
--   **Database Models**: Key models include `MaterialBase`, `TabelaPreco`, `TabelaPrecoItem`, `SolicitacaoAutorizacaoPreco`, `Fornecedor` (extended with `tipo_documento`, `cpf`, `cnpj`), `Solicitacao` (with `modalidade_frete`), `ScannerConfig`, `ScannerAnalysis`, `Conquista`, `AporteConquista`, and `Usuario` (extended with `foto_path`, `percentual_comissao`, `telefone`, `cpf`, `data_atualizacao` for HR module).
--   **API Endpoints**: Structured RESTful APIs for managing materials, price tables, authorizations, suppliers, purchases, and the AI scanner, including CRUD, bulk updates, and Excel integrations. Specific endpoints for CEP lookup and AI assistant actions are also present.
--   **Security**: Employs JWT for authentication, role-based authorization (`@admin_required`), robust input validation (e.g., prices, weights, CPF/CNPJ format/uniqueness), and database integrity checks.
--   **Seed Data**: An idempotent seed script initializes essential system data.
--   **Database Migrations**: Handles schema changes including additions for CPF/CNPJ support and freight modality tracking.
+### Estrutura de Diretórios
+```
+/
+├── app/                    # Aplicação principal
+│   ├── __init__.py        # Inicialização do Flask
+│   ├── models.py          # Modelos de dados SQLAlchemy
+│   ├── auth.py            # Autenticação e autorização
+│   ├── rbac_config.py     # Configuração RBAC
+│   ├── routes/            # Blueprints de rotas
+│   ├── services/          # Serviços (IA, scanner)
+│   ├── utils/             # Utilitários
+│   ├── static/            # CSS, JS, imagens
+│   └── templates/         # Templates HTML
+├── app.py                 # Ponto de entrada (dev)
+├── wsgi.py                # Ponto de entrada (prod)
+├── requirements.txt       # Dependências Python
+└── uploads/               # Arquivos enviados
+```
 
-### External Dependencies
+## Módulos Principais
 
-#### Backend
--   Flask
--   Flask-SQLAlchemy
--   Flask-JWT-Extended
--   Flask-SocketIO
--   psycopg2-binary
--   pandas
--   openpyxl
+### 1. Gestão de Usuários e Perfis (RBAC)
+- 7 perfis pré-configurados: Admin, Comprador, Conferente, Separação, Motorista, Financeiro, Auditoria
+- Sistema de permissões granular
+- Auditoria completa de ações
 
-#### Frontend
--   Tailwind CSS
--   Chart.js
--   Socket.IO Client
+### 2. Fornecedores e Vendedores
+- Cadastro PF/PJ com consulta CNPJ
+- Sistema de atribuição de fornecedores a funcionários
+- Preços por fornecedor + tipo de lote + estrelas
+
+### 3. Solicitações com IA
+- Upload de fotos de placas eletrônicas
+- Classificação automática via Gemini AI
+- Geocoding reverso (GPS → endereço)
+- Cálculo automático de preços
+
+### 4. Logística e Ordem de Serviço
+- App PWA para motoristas
+- Rastreamento GPS em tempo real
+- Quadro Kanban de OS
+- Reagendamento e cancelamento
+
+### 5. Conferência de Recebimento
+- Detecção automática de divergências
+- Workflow de decisão administrativa
+- Criação automática de lotes
+
+### 6. WMS (Warehouse Management)
+- Gestão completa de lotes
+- Bloqueio/reserva de materiais
+- Inventário cíclico
+- Auditoria de movimentações
+
+### 7. Separação de Lotes
+- Registro de componentes separados
+- Gestão de resíduos
+- Aprovação de supervisor
+- Criação de sublotes
+
+### 8. Notificações em Tempo Real
+- WebSocket (Socket.IO)
+- Salas por perfil de usuário
+- Push notifications (PWA)
+
+### 9. Dashboard e Análises
+- Métricas de compras, estoque, logística
+- Gráficos Chart.js
+- KPIs em tempo real
+
+## Configuração
+
+### Variáveis de Ambiente Necessárias
+- `DATABASE_URL`: URL do PostgreSQL (já configurado pelo Replit)
+- `SESSION_SECRET`: Chave secreta da sessão (já configurado)
+- `JWT_SECRET_KEY`: Chave JWT (opcional, usa SESSION_SECRET por padrão)
+- `ADMIN_EMAIL`: Email do admin (opcional)
+- `ADMIN_PASSWORD`: Senha do admin (opcional)
+- `GEMINI_API_KEY`: API key do Google Gemini (para IA de classificação)
+
+### Inicialização do Banco de Dados
+O banco de dados é inicializado automaticamente na primeira execução:
+1. Cria todas as tabelas
+2. Inicializa 3 tabelas de preço (1, 2 e 3 estrelas)
+3. Cria tipo de lote padrão
+4. Cria 7 perfis de usuário
+5. Cria usuário administrador
+
+## Desenvolvimento
+
+### Executar Localmente
+```bash
+python app.py
+```
+Acesse: http://localhost:5000
+
+### Produção (Deployment)
+O projeto está configurado para usar **Gunicorn com eventlet** para suportar WebSockets:
+```bash
+gunicorn --bind=0.0.0.0:5000 --worker-class=eventlet -w 1 wsgi:app
+```
+
+## Features Especiais
+
+### PWA (Progressive Web App)
+- Service Worker registrado
+- Instalável em dispositivos móveis
+- Funciona offline (assets em cache)
+- Manifest.json configurado
+
+### IA de Classificação
+- Usa Google Gemini para análise de imagens
+- Classifica placas em: Leve, Médio, Pesado
+- Fornece justificativa textual
+- Integra com sistema de preços
+
+### GPS e Geolocalização
+- Captura automática de coordenadas
+- Geocoding reverso (coordenadas → endereço)
+- Rastreamento de rotas de motoristas
+- Histórico de localizações
+
+## Segurança
+- Autenticação JWT com refresh tokens
+- RBAC completo
+- CORS configurado
+- Senhas com bcrypt
+- Auditoria de todas as ações
+- Session secrets gerenciados pelo Replit
+
+## Status do Projeto
+✅ **Configurado e funcionando no Replit**
+- Python 3.11 instalado
+- Todas as dependências instaladas
+- Banco de dados PostgreSQL configurado
+- Workflow configurado na porta 5000
+- Aplicação testada e verificada
+- Deployment configurado com Gunicorn + eventlet
+
+## Próximos Passos Recomendados
+1. Configure a API key do Google Gemini (variável GEMINI_API_KEY) para habilitar classificação por IA
+2. Altere a senha do administrador padrão
+3. Configure emails personalizados e senhas para o admin
+4. Faça o deploy para produção usando o botão "Deploy" do Replit
+
+## Data de Configuração
+Configurado em: 02 de dezembro de 2025
