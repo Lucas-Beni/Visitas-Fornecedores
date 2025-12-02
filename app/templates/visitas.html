@@ -548,8 +548,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Contato na Empresa (com quem falou) *</label>
-                    <input type="text" id="contatoEmpresa" required placeholder="Nome da pessoa com quem conversou">
+                    <label>Contato na Empresa (com quem falou)</label>
+                    <input type="text" id="contatoEmpresa" placeholder="Nome da pessoa com quem conversou">
                 </div>
 
                 <div class="form-group">
@@ -559,7 +559,7 @@
 
                 <div class="form-group">
                     <label>Telefone</label>
-                    <input type="tel" id="telefone" placeholder="(00) 00000-0000">
+                    <input type="tel" id="telefone" placeholder="(00) 00000-0000" oninput="formatarTelefone(this)" maxlength="15">
                 </div>
 
                 <div class="form-group">
@@ -617,6 +617,26 @@
     <script>
         let todasVisitas = [];
         let tabAtual = 'pendentes';
+
+        function formatarTelefone(input) {
+            let valor = input.value.replace(/\D/g, '');
+            
+            if (valor.length > 11) {
+                valor = valor.substring(0, 11);
+            }
+            
+            if (valor.length > 0) {
+                valor = '(' + valor;
+            }
+            if (valor.length > 3) {
+                valor = valor.substring(0, 3) + ') ' + valor.substring(3);
+            }
+            if (valor.length > 10) {
+                valor = valor.substring(0, 10) + '-' + valor.substring(10);
+            }
+            
+            input.value = valor;
+        }
 
         async function carregarPagina() {
             const user = await verificarAuth();
