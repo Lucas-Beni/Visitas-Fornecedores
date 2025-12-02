@@ -1974,6 +1974,7 @@ class Visita(db.Model):  # type: ignore
     estado = db.Column(db.String(2), nullable=True)
     
     observacoes = db.Column(db.Text, nullable=True)
+    contato_empresa = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(20), default='pendente', nullable=False)
     
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
@@ -2001,6 +2002,7 @@ class Visita(db.Model):  # type: ignore
             'cidade': self.cidade,
             'estado': self.estado,
             'observacoes': self.observacoes,
+            'contato_empresa': self.contato_empresa,
             'status': self.status,
             'usuario_id': self.usuario_id,
             'usuario_nome': self.usuario.nome if self.usuario else None,

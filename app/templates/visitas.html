@@ -405,6 +405,40 @@
             font-size: 0.875rem;
             color: #6b7280;
         }
+
+        /* Padding específico para mobile na página de visitas */
+        @media (max-width: 767px) {
+            main.container {
+                padding-top: 70px !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            main.container {
+                padding-top: 60px !important;
+            }
+        }
+
+        .campo-readonly {
+            background-color: #f3f4f6 !important;
+            cursor: not-allowed;
+        }
+
+        .campo-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.75rem;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+            font-size: 14px;
+        }
+
+        .campo-info i {
+            color: #0284c7;
+        }
     </style>
 </head>
 <body>
@@ -491,9 +525,31 @@
             <form id="formVisita" onsubmit="salvarVisita(event)">
                 <input type="hidden" id="visitaId">
 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Data e Hora do Registro</label>
+                        <div class="campo-info" id="dataHoraRegistro">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Carregando...</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Registrado Por</label>
+                        <div class="campo-info" id="registradoPor">
+                            <i class="fas fa-user"></i>
+                            <span>Carregando...</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Nome do Contato / Empresa *</label>
                     <input type="text" id="nome" required placeholder="Nome do potencial fornecedor">
+                </div>
+
+                <div class="form-group">
+                    <label>Contato na Empresa (com quem falou) *</label>
+                    <input type="text" id="contatoEmpresa" required placeholder="Nome da pessoa com quem conversou">
                 </div>
 
                 <div class="form-group">
@@ -689,6 +745,7 @@
                         </div>
 
                         <div class="visita-info">
+                            ${v.contato_empresa ? `<div class="info-item"><i class="fas fa-user-tie"></i><span>Contato: ${v.contato_empresa}</span></div>` : ''}
                             ${v.telefone ? `<div class="info-item"><i class="fas fa-phone"></i><span>${v.telefone}</span></div>` : ''}
                             ${v.email ? `<div class="info-item"><i class="fas fa-envelope"></i><span>${v.email}</span></div>` : ''}
                             ${v.endereco_completo ? `<div class="info-item"><i class="fas fa-map-marker-alt"></i><span>${v.endereco_completo}</span></div>` : ''}
@@ -708,6 +765,25 @@
             document.getElementById('visitaId').value = '';
             document.getElementById('localizacaoStatus').innerHTML = '<i class="fas fa-map-marker-alt"></i><span>Clique para obter sua localizacao</span>';
             document.getElementById('localizacaoStatus').className = 'localizacao-status';
+            
+            // Preencher data e hora atual
+            const agora = new Date();
+            const dataFormatada = agora.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('dataHoraRegistro').innerHTML = `<i class="fas fa-calendar-alt"></i><span>${dataFormatada}</span>`;
+            
+            // Preencher nome do usuário logado
+            if (currentUserData && currentUserData.nome) {
+                document.getElementById('registradoPor').innerHTML = `<i class="fas fa-user"></i><span>${currentUserData.nome}</span>`;
+            } else {
+                document.getElementById('registradoPor').innerHTML = `<i class="fas fa-user"></i><span>Usuário</span>`;
+            }
+            
             document.getElementById('modalVisita').classList.add('active');
 
             obterLocalizacao();
@@ -786,6 +862,7 @@
 
             const dados = {
                 nome: document.getElementById('nome').value,
+                contato_empresa: document.getElementById('contatoEmpresa').value || null,
                 email: document.getElementById('email').value || null,
                 telefone: document.getElementById('telefone').value || null,
                 localizacao_lat: parseFloat(document.getElementById('localizacaoLat').value) || null,

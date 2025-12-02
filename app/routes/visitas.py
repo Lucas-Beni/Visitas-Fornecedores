@@ -75,6 +75,7 @@ def criar_visita():
             cidade=data.get('cidade'),
             estado=data.get('estado'),
             observacoes=data.get('observacoes'),
+            contato_empresa=data.get('contato_empresa'),
             status='pendente',
             usuario_id=usuario_id,
             data_visita=datetime.utcnow()
@@ -130,6 +131,8 @@ def atualizar_visita(id):
             visita.estado = data['estado']
         if 'observacoes' in data:
             visita.observacoes = data['observacoes']
+        if 'contato_empresa' in data:
+            visita.contato_empresa = data['contato_empresa']
         
         db.session.commit()
         
